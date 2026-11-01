@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#06281e">
+<title>তিন তাস হিসাব খাতা</title>
+<style>
+:root{--card:#ffffff14;--card2:#0000002e;--line:#ffffff1f;--gold:#f5c542;--gold2:#ffdf7e;--red:#e5484d;--blue:#4aa8ff;--txt:#f6f2e7;--mut:#a8c9ba;--ok:#43d99a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{background:#06281e}
+body{margin:0;color:var(--txt);font-family:"Noto Sans Bengali","Kalpurush","SolaimanLipi",system-ui,sans-serif;font-size:16px;line-height:1.5;padding-bottom:90px;min-height:100vh;
+background:radial-gradient(900px 600px at 50% 0,#1b7a58 0%,#0d4a36 45%,#06281e 100%) no-repeat #06281e}
+body:before{content:"♠  ♥  ♦  ♣  ♠  ♥  ♦  ♣";position:fixed;left:0;right:0;top:46%;text-align:center;font-size:64px;letter-spacing:18px;color:#ffffff08;pointer-events:none;white-space:nowrap;overflow:hidden}
+#app{max-width:600px;margin:0 auto;padding:12px;position:relative}
+.hdr{display:flex;align-items:center;justify-content:space-between;margin:2px 0 8px;gap:6px}
+.logo{font-size:21px;font-weight:800;color:var(--gold);text-shadow:0 2px 10px #0008;white-space:nowrap}
+.logo span{color:#fff;font-size:14px;margin-right:6px;letter-spacing:3px}
+.logo .r{color:#ff6b6f;font-style:normal}
+h1{font-size:22px;margin:6px 0 2px;color:var(--gold)}
+h2{font-size:16px;margin:18px 2px 8px;color:var(--gold2);display:flex;align-items:center;gap:8px}
+h2:after{content:"";flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+small,.mut{color:var(--mut)}
+.box{background:var(--card);border:1px solid var(--line);backdrop-filter:blur(4px);border-radius:18px;padding:14px;margin:10px 0;box-shadow:0 8px 24px #0004}
+label{display:block;margin:10px 0 5px;color:var(--mut);font-size:14px}
+input[type=text],input[type=number],select{width:100%;padding:12px;border-radius:12px;border:1px solid #ffffff2e;background:#00000033;color:var(--txt);font:inherit;outline:none}
+input:focus,select:focus{border-color:var(--gold);box-shadow:0 0 0 3px #f5c54233}
+select option{color:#000}
+button{font:inherit;border-radius:14px;padding:13px 14px;min-height:48px;background:#ffffff1c;color:var(--txt);cursor:pointer;border:1px solid var(--line);transition:transform .08s}
+button:active{transform:scale(.96)}
+button:disabled{opacity:.3;cursor:not-allowed}
+.gold{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#2b2200;font-weight:800;border:0;box-shadow:0 4px 0 #b88a10,0 8px 16px #0005}
+.gold:active{box-shadow:0 1px 0 #b88a10}
+.red{background:linear-gradient(180deg,#f0646a,var(--red));border:0;font-weight:700;box-shadow:0 4px 0 #a02a2e}
+.blue{background:linear-gradient(180deg,#5db5ff,#2b78c2);border:0;font-weight:700;box-shadow:0 4px 0 #1b4f84}
+.ghost{background:transparent}
+.sm{min-height:36px;padding:6px 12px;font-size:14px;border-radius:10px}
+.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.btn-row>button{flex:1 1 44%}
+.btn-row>button.full{flex:1 1 100%}
+.util{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.util button{min-height:42px;font-size:14px;padding:8px}
+.top{display:flex;gap:8px;align-items:stretch}
+.stat{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:8px 6px;text-align:center}
+.stat small{font-size:12px}
+.stat b{display:block;font-size:17px;color:var(--gold2)}
+.pot{flex:1.3;background:radial-gradient(circle at 30% 20%,#ffe9a0,#f5c542 55%,#c9971a);color:#2b2200;border-radius:16px;text-align:center;padding:8px;border:3px dashed #fff8;box-shadow:0 6px 18px #0006}
+.pot small{color:#5a4300;font-size:12px}.pot b{display:block;font-size:24px;line-height:1.2}
+.pl{background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:9px 12px;margin:7px 0}
+.plrow{display:flex;align-items:center;gap:10px}
+.pl.cur{border-color:var(--gold);background:#f5c54222;animation:pulse 1.6s infinite}
+.pl.fold{opacity:.45}.pl.fold .avs{filter:grayscale(1)}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 #f5c54255}50%{box-shadow:0 0 0 7px #f5c54200}}
+.avs{display:inline-block;border-radius:50%;overflow:hidden;flex:none;box-shadow:0 0 0 2px #ffffff66,0 3px 8px #0006;background:#0003;vertical-align:middle}
+.avs svg{display:block;width:100%;height:100%}
+.pn{flex:1;min-width:0}.pn b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip{display:inline-block;font-size:11px;padding:0 8px;border-radius:99px;margin-right:4px;line-height:19px}
+.c-blind{background:#6b7c75;color:#fff}.c-seen{background:var(--blue);color:#06233f}.c-fold{background:var(--red);color:#fff}.c-dlr{background:var(--gold);color:#2b2200}
+.amt{font-weight:800;text-align:right;color:var(--gold2)}
+.bal{font-size:12px;color:var(--mut);text-align:right}
+.pos{color:var(--ok)}.neg{color:#ff8a8d}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px dashed var(--line);gap:8px}
+.row:last-child{border-bottom:0}
+.tx{background:var(--card2);border-left:4px solid var(--gold);border-radius:10px;padding:9px 12px;margin:7px 0}
+details{margin-top:12px}summary{cursor:pointer;color:var(--mut)}
+.log div{font-size:14px;padding:2px 0;color:var(--mut)}
+#toast{position:fixed;left:50%;bottom:80px;transform:translateX(-50%);background:#000d;color:#fff;padding:11px 18px;border-radius:99px;display:none;z-index:9;max-width:90%;text-align:center}
+#ubar{position:fixed;left:50%;bottom:14px;transform:translateX(-50%);width:min(92%,560px);background:#000d;border:1px solid var(--line);border-radius:16px;padding:8px 8px 8px 14px;display:none;align-items:center;justify-content:space-between;gap:10px;z-index:8}
+#modal,#pop{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
+#pop{z-index:11}
+.m{background:#0d4a36;border:1px solid var(--line);border-radius:18px;padding:18px;max-width:380px;width:100%;max-height:88vh;overflow:auto}
+.pk{background:var(--card2);border-radius:14px;padding:10px 12px;margin:8px 0}
+.pk .l1{display:flex;align-items:center;gap:10px}
+.pk .l1 input{width:22px;height:22px;flex:none}
+.pk .l2{display:flex;gap:8px;margin-top:8px}
+.pk .l2 input{flex:1;font-size:18px;padding:13px}
+.pk .l2 button{flex:none;min-width:96px}
+.arr{display:flex;flex-direction:column;gap:4px;flex:none}
+.arr button{min-height:0;padding:0;width:32px;height:26px;border-radius:8px;font-size:13px}
+.pr{display:flex;gap:6px;margin-bottom:8px;align-items:center}
+.pr input.nm{flex:1;min-width:0}
+.pr input.am{width:84px;flex:none}
+.avb{padding:0;min-height:0;border:0;background:none;flex:none}
+.hi{margin:10px 0}
+.hi summary{list-style:none;display:flex;justify-content:space-between;gap:8px;color:var(--txt)}
+.hi summary::-webkit-details-marker{display:none}
+.dev{margin-top:22px;text-align:center;padding:14px;border-radius:16px;background:var(--card2);border:1px solid var(--line);font-size:14px}
+.dev b{color:var(--gold2)}
+.dev a{color:var(--gold2);text-decoration:none;border-bottom:1px dotted var(--gold2)}
+.empty{text-align:center;padding:26px 10px;color:var(--mut)}
+.strip{display:flex;gap:8px;overflow-x:auto;padding:6px 2px;justify-content:center;flex-wrap:wrap}
+.strip .it{text-align:center;font-size:11px;color:var(--mut);width:52px}
+.strip .it .avs{box-shadow:0 0 0 2px #ffffff33}
+.strip .it.cur .avs{box-shadow:0 0 0 3px var(--gold)}
+.strip .it.fold{opacity:.4}
+.strip .it span.t{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.splash{text-align:center;padding:26px 14px}
+.splash .nm{font-size:34px;font-weight:800;color:var(--gold2);margin:10px 0 2px}
+.solo{text-align:center}
+.solo .nm{font-size:26px;font-weight:800;color:var(--gold2)}
+.kv{display:flex;gap:8px;margin:10px 0}
+.kv div{flex:1;background:var(--card2);border-radius:12px;padding:6px}
+.kv b{display:block;font-size:19px;color:var(--gold2)}
+.avg{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;justify-items:center;margin-top:12px}
+.avg button{padding:0;min-height:0;border:0;background:none}
+.sw{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px dashed var(--line)}
+.sw input[type=checkbox]{width:26px;height:26px}
+input[type=range]{width:100%}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toast"></div>
+<div id="ubar"></div>
+<div id="modal"><div class="m"><div id="mt" style="margin-bottom:14px"></div><div class="btn-row"><button class="ghost" onclick="mClose()">না</button><button class="red" onclick="mYes()">হ্যাঁ</button></div></div></div>
+<div id="pop"></div>
+<script>
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rnd=n=>Math.round(n*100)/100;
+const fmt=n=>'৳'+rnd(n).toLocaleString('bn-BD');
+const bn=n=>Number(n).toLocaleString('bn-BD');
+const fdt=t=>t?new Date(t).toLocaleString('bn-BD',{dateStyle:'medium',timeStyle:'short'}):'';
+let G,HIST=[],_yes=null,VIEW='',ACK=null;
+let CFG={mode:'table',voice:true,tts:false,rate:1,vol:1};
+
+/* ---------- কার্টুন অ্যাভাটার ---------- */
+// [পটভূমি, ত্বক, চুল/টুপি, স্টাইল, অতিরিক্ত, জামা]
+const AVS=[
+['#e2574c','#e8b88a','#2b1b12','short','none','#2f5fa8'],
+['#2f8fd8','#d39a6a','#1a1a1a','short','mustache','#e0a21e'],
+['#8e5bd1','#b9774a','#222','bald','beard','#1fa37a'],
+['#e08a1e','#f1c27d','#2f5fa8','cap','none','#d6457f'],
+['#1fa37a','#d39a6a','#1a1a1a','tupi','beard','#f4f1e8'],
+['#d6457f','#8d5524','#1a1a1a','curly','glasses','#5a6ee0'],
+['#5a6ee0','#f6d4b0','#6b3d1e','short','glasses','#2b2b2b'],
+['#8a9a2a','#b9774a','#333','bald','mustache','#c0392b'],
+['#16899c','#e8b88a','#2b1b12','long','none','#e2574c'],
+['#b0603a','#f1c27d','#4a2a14','bun','none','#8e5bd1'],
+['#e2574c','#d39a6a','#2f6f5a','hijab','none','#f4f1e8'],
+['#2f8fd8','#f6d4b0','#c98b3c','long','glasses','#1fa37a'],
+['#8e5bd1','#8d5524','#1a1a1a','curly','none','#e0a21e'],
+['#e08a1e','#e8b88a','#5a3b8a','hijab','glasses','#f4f1e8'],
+['#1fa37a','#b9774a','#3a2a1a','short','beard','#2f8fd8'],
+['#d6457f','#f1c27d','#2b2b2b','cap','mustache','#e2574c'],
+['#5a6ee0','#e8b88a','#1a1a1a','tupi','none','#f4f1e8'],
+['#8a9a2a','#f6d4b0','#7a3b1e','bun','glasses','#16899c'],
+['#16899c','#d39a6a','#a03a1a','long','none','#2b2b2b'],
+['#b0603a','#8d5524','#222','curly','mustache','#5a6ee0'],
+['#e2574c','#f6d4b0','#bdbdbd','short','none','#8a9a2a'],
+['#2f8fd8','#e8b88a','#222','bald','glasses','#d6457f'],
+['#8e5bd1','#f1c27d','#8a2f4a','hijab','none','#f4f1e8'],
+['#e08a1e','#b9774a','#2f8fd8','cap','glasses','#1a1a1a']
+];
+const _avc={};
+function avSVG(i){
+  i=((i%AVS.length)+AVS.length)%AVS.length;if(_avc[i])return _avc[i];
+  const [bg,sk,hr,st,ac,sh]=AVS[i];const beard=ac==='beard'||ac==='mustache';
+  let s=`<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100" fill="${bg}"/>`;
+  s+=`<path d="M10 100 Q14 70 50 68 Q86 70 90 100Z" fill="${sh}"/><rect x="43" y="58" width="14" height="14" fill="${sk}"/>`;
+  if(st==='hijab')s+=`<path d="M22 52 Q18 12 50 12 Q82 12 78 52 Q80 78 64 86 L36 86 Q20 78 22 52Z" fill="${hr}"/>`;
+  if(st==='long')s+=`<path d="M24 50 Q20 12 50 12 Q80 12 76 50 L80 90 L20 90Z" fill="${hr}"/>`;
+  s+=`<ellipse cx="50" cy="48" rx="22" ry="25" fill="${sk}"/>`;
+  if(st!=='hijab')s+=`<circle cx="28" cy="50" r="4" fill="${sk}"/><circle cx="72" cy="50" r="4" fill="${sk}"/>`;
+  if(st==='short'||st==='bun')s+=`<path d="M27 46 Q25 20 50 20 Q75 20 73 46 Q68 33 50 33 Q32 33 27 46Z" fill="${hr}"/>`;
+  if(st==='bun')s+=`<circle cx="50" cy="14" r="9" fill="${hr}"/>`;
+  if(st==='long')s+=`<path d="M27 46 Q32 24 50 24 Q68 24 73 46 Q60 34 50 34 Q40 34 27 46Z" fill="${hr}"/>`;
+  if(st==='hijab')s+=`<path d="M27 44 Q30 27 50 27 Q70 27 73 44 Q60 35 50 35 Q40 35 27 44Z" fill="${hr}"/>`;
+  if(st==='curly')[[30,38],[38,26],[50,22],[62,26],[70,38]].forEach(c=>s+=`<circle cx="${c[0]}" cy="${c[1]}" r="9" fill="${hr}"/>`);
+  if(st==='cap')s+=`<path d="M25 40 Q27 15 50 15 Q73 15 75 40Z" fill="${hr}"/><rect x="22" y="38" width="56" height="6" rx="3" fill="${hr}"/>`;
+  if(st==='tupi')s+=`<path d="M29 37 Q30 15 50 15 Q70 15 71 37Z" fill="#f7f4ea" stroke="#d8d2c0" stroke-width="1.5"/><path d="M34 27 L66 27" stroke="#cfc8b2" stroke-width="1.5"/>`;
+  s+=`<circle cx="41" cy="49" r="2.6" fill="#222"/><circle cx="59" cy="49" r="2.6" fill="#222"/>`;
+  s+=`<path d="M36 42 Q41 39 46 42M54 42 Q59 39 64 42" stroke="#222" stroke-width="2" fill="none" stroke-linecap="round"/>`;
+  s+=`<path d="M50 51 Q47 58 50 59" stroke="rgba(0,0,0,.25)" stroke-width="1.6" fill="none"/>`;
+  if(ac==='beard')s+=`<path d="M29 52 Q30 82 50 82 Q70 82 71 52 Q64 67 50 67 Q36 67 29 52Z" fill="${hr}"/>`;
+  if(beard)s+=`<path d="M40 61 Q45 56 50 60 Q55 56 60 61 Q55 63 50 62 Q45 63 40 61Z" fill="${hr}"/>`;
+  s+=ac==='beard'?`<path d="M44 70 Q50 74 56 70" stroke="#f0cbbb" stroke-width="2" fill="none" stroke-linecap="round"/>`:`<path d="M43 64 Q50 70 57 64" stroke="#8a3b2b" stroke-width="2.2" fill="none" stroke-linecap="round"/>`;
+  if(ac==='glasses')s+=`<g fill="none" stroke="#222" stroke-width="2"><circle cx="41" cy="49" r="7.5"/><circle cx="59" cy="49" r="7.5"/><path d="M48.5 49 L51.5 49"/></g>`;
+  return _avc[i]=s+'</svg>';
+}
+const avH=(i,sz)=>`<span class="avs" style="width:${sz}px;height:${sz}px">${avSVG(i)}</span>`;
+const pav=p=>p.av!=null?p.av:0;
+
+/* ---------- সংরক্ষণ ---------- */
+function fresh(){return{phase:'setup',setup:{n:4,names:[],amts:[],avs:[],allAmt:500,boot:10},players:[],nextId:1,boot:10,dealer:null,roundNo:0,r:null,rounds:[],voids:0,keepDealer:false,nextFirst:null,startedAt:null}}
+function load(){
+  try{G=JSON.parse(localStorage.getItem('tp_G'));HIST=JSON.parse(localStorage.getItem('tp_H')||'[]')}catch(e){G=null}
+  if(!G)G=fresh();if(!G.setup.avs)G.setup.avs=[];
+  try{const c=JSON.parse(localStorage.getItem('tp_cfg'));if(c)CFG=Object.assign(CFG,c)}catch(e){}
+  if(G.r)ACK=G.r.turn;
+  loadV();
+}
+function save(){try{localStorage.setItem('tp_G',JSON.stringify(G));localStorage.setItem('tp_H',JSON.stringify(HIST))}catch(e){}}
+function saveCfg(){try{localStorage.setItem('tp_cfg',JSON.stringify(CFG))}catch(e){}}
+function loadH(){try{return JSON.parse(localStorage.getItem('tp_hist')||'[]')}catch(e){return[]}}
+function saveH(h){try{localStorage.setItem('tp_hist',JSON.stringify(h))}catch(e){toast('ইতিহাস সংরক্ষণ করা গেল না')}}
+function snap(){HIST.push(JSON.stringify(G));if(HIST.length>80)HIST.shift()}
+function undo(){if(!HIST.length){toast('আর পিছনে যাওয়া যাবে না');return}G=JSON.parse(HIST.pop());if(G.r)ACK=G.r.turn;save();render()}
+function undoNow(){$('#ubar').style.display='none';try{speechSynthesis.cancel()}catch(e){}undo()}
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(toast._t);toast._t=setTimeout(()=>e.style.display='none',2400)}
+function ub(t){const e=$('#ubar');e.innerHTML=`<span style="font-size:14px">${esc(t)}</span><button class="sm" onclick="undoNow()">↶ ভুল হলে বাতিল</button>`;e.style.display='flex';clearTimeout(ub._t);ub._t=setTimeout(()=>e.style.display='none',6000)}
+function ask(msg,fn){$('#mt').textContent=msg;_yes=fn;$('#modal').style.display='flex'}
+function mClose(){$('#modal').style.display='none';_yes=null}
+function mYes(){const f=_yes;mClose();if(f)f()}
+function popup(h){$('#pop').innerHTML='<div class="m">'+h+'</div>';$('#pop').style.display='flex'}
+function closePop(){$('#pop').style.display='none'}
+const pl=id=>G.players.find(p=>p.id===id);
+const net=p=>rnd(p.bal-p.dep);
+const can=(id,x)=>pl(id).bal+1e-9>=x;
+
+/* ---------- ভয়েস (নিজের গলায় রেকর্ড করা) ---------- */
+// [কী, বাক্য]
+const PH=[['ebar','এবার'],['pala','-এর পালা'],['chaal','চাল দিলেন'],['blindchaal','অন্ধ চাল দিলেন'],['raise','রেইজ করলেন'],['blindraise','অন্ধ রেইজ করলেন'],['see','তাস দেখলেন'],['fold','ফোল্ড করলেন'],['side','সাইড শো চাইলেন'],['show','শো চাইলেন'],['declined','সাইড শো প্রত্যাখ্যাত হলো'],['won','জিতলেন'],['roundwon','রাউন্ড জিতলেন'],['topup','টাকা জমা দিলেন'],['void','রাউন্ড বাতিল হয়েছে'],['start','খেলা শুরু হলো']];
+const MIC='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
+let VL={p:{},n:{}},VOICE=null,QTOK=0,CUR=null,RT=null,MR=null,RSTREAM=null,RTIMER=null,VNAMES=[];
+function loadV(){try{VL=JSON.parse(localStorage.getItem('tp_voice'))||{p:{},n:{}}}catch(e){VL={p:{},n:{}}}if(!VL.p)VL.p={};if(!VL.n)VL.n={}}
+function saveV(){try{localStorage.setItem('tp_voice',JSON.stringify(VL));return true}catch(e){toast('জায়গা শেষ — কিছু রেকর্ডিং মুছুন');return false}}
+function pickVoice(){try{VOICE=speechSynthesis.getVoices().find(v=>/^bn/i.test(v.lang))||null}catch(e){VOICE=null}}
+try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
+function stopSay(){QTOK++;try{speechSynthesis.cancel()}catch(e){}if(CUR){try{CUR.pause()}catch(e){}CUR=null}}
+const P_=k=>({k:'p',key:k,text:(PH.find(x=>x[0]===k)||[0,''])[1]});
+const N_=id=>({k:'n',key:pl(id).name,text:pl(id).name});
+function playQ(items){
+  if(!CFG.voice)return;stopSay();const tok=QTOK;let i=0;
+  const next=()=>{
+    if(tok!==QTOK||i>=items.length)return;
+    const it=items[i++],clip=(VL[it.k]||{})[it.key];
+    if(clip){try{const a=new Audio(clip);CUR=a;a.volume=CFG.vol;a.playbackRate=CFG.rate;a.onended=next;a.onerror=next;const pr=a.play();if(pr&&pr.catch)pr.catch(next)}catch(e){next()}}
+    else if(CFG.tts&&it.text){try{const u=new SpeechSynthesisUtterance(it.text);u.lang=VOICE?VOICE.lang:'bn-BD';if(VOICE)u.voice=VOICE;u.rate=CFG.rate;u.volume=CFG.vol;u.onend=next;u.onerror=next;speechSynthesis.speak(u)}catch(e){next()}}
+    else next();
+  };
+  next();
+}
+function announce(q,pt){
+  const r=G.r;
+  if(G.phase==='between'&&r.over&&!r.voided)q.push(N_(r.winner),P_('roundwon'));
+  else if(!r.pend&&r.turn!==pt)q.push(P_('ebar'),N_(r.turn),P_('pala'));
+  playQ(q);
+}
+function setCfg(k,v){CFG[k]=v;saveCfg();if(k==='mode'||k==='voice'||k==='tts')render()}
+function testVoice(){
+  const any=PH.some(x=>VL.p[x[0]]);
+  if(!any&&!CFG.tts){toast('আগে কিছু বাক্য রেকর্ড করুন');return}
+  const keep=CFG.voice;CFG.voice=true;
+  const nm=Object.keys(VL.n)[0];
+  playQ([P_('chaal'),P_('ebar'),...(nm?[{k:'n',key:nm,text:nm}]:[]),P_('pala')]);CFG.voice=keep;
+}
+/* রেকর্ডিং */
+function setRS(t){const e=$('#rs');if(e)e.textContent=t}
+function recPop(k,key,label){
+  RT={k,key};
+  popup(`<b>${esc(label)}</b><div class="mut" style="font-size:14px;margin-top:6px">${k==='n'?'শুধু নামটা বলুন':'এই কথাটা স্পষ্ট করে বলুন'}: <b>"${esc(k==='n'?key:label)}"</b></div><div id="rs" class="mut" style="margin:12px 0">"রেকর্ড শুরু" চেপে বলুন। ৪ সেকেন্ডে নিজে থেকে থামবে।</div><div class="btn-row"><button class="red full" id="rb" onclick="recToggle()">● রেকর্ড শুরু</button><button class="ghost" onclick="recFile()">ফাইল থেকে নিন</button><button class="ghost" onclick="recClose()">বন্ধ করুন</button></div>`);
+}
+function recStop(abort){clearTimeout(RTIMER);if(MR&&MR.state==='recording'){if(abort)MR.onstop=null;try{MR.stop()}catch(e){}}if(abort&&RSTREAM)RSTREAM.getTracks().forEach(t=>t.stop())}
+function recClose(){recStop(true);closePop();render()}
+async function recToggle(){
+  if(MR&&MR.state==='recording'){MR.stop();return}
+  try{
+    if(!navigator.mediaDevices||!window.MediaRecorder)throw new Error('nomic');
+    RSTREAM=await navigator.mediaDevices.getUserMedia({audio:true});
+    const ch=[];MR=new MediaRecorder(RSTREAM);
+    MR.ondataavailable=e=>{if(e.data&&e.data.size)ch.push(e.data)};
+    MR.onstop=async()=>{
+      clearTimeout(RTIMER);RSTREAM.getTracks().forEach(t=>t.stop());
+      const b=$('#rb');if(b)b.textContent='● আবার রেকর্ড করুন';
+      setRS('প্রক্রিয়া চলছে…');
+      try{await saveClip(await new Blob(ch,{type:MR.mimeType||'audio/webm'}).arrayBuffer())}
+      catch(e){setRS('আওয়াজ পাওয়া যায়নি বা বোঝা গেল না — একটু জোরে বলে আবার চেষ্টা করুন')}
+    };
+    MR.start();const b=$('#rb');if(b)b.textContent='■ থামুন';setRS('বলুন…');
+    RTIMER=setTimeout(()=>{if(MR&&MR.state==='recording')MR.stop()},4000);
+  }catch(e){setRS('মাইক চালু হয়নি। ব্রাউজারে মাইকের অনুমতি দিন, অথবা ফোনের রেকর্ডার দিয়ে রেকর্ড করে "ফাইল থেকে নিন" চাপুন।')}
+}
+function recFile(){
+  const i=document.createElement('input');i.type='file';i.accept='audio/*';
+  i.onchange=async()=>{if(!i.files[0])return;setRS('প্রক্রিয়া চলছে…');try{await saveClip(await i.files[0].arrayBuffer())}catch(e){setRS('ফাইলটি পড়া গেল না — অন্য ফাইল দিন')}};
+  i.click();
+}
+async function saveClip(ab){
+  const url=await toWav(ab),k=RT.k,key=RT.key;
+  VL[k][key]=url;
+  if(!saveV()){delete VL[k][key];setRS('জায়গা শেষ — পুরনো রেকর্ডিং মুছুন');return}
+  setRS('সংরক্ষিত ✓ — শুনুন। ঠিক না লাগলে আবার রেকর্ড করুন।');
+  try{const a=new Audio(url);a.volume=CFG.vol;const pr=a.play();if(pr&&pr.catch)pr.catch(()=>{})}catch(e){}
+}
+function decodeAB(ac,ab){return new Promise((res,rej)=>{const p=ac.decodeAudioData(ab,res,rej);if(p&&p.catch)p.catch(rej)})}
+async function toWav(ab){
+  const AC=window.AudioContext||window.webkitAudioContext,ac=new AC();let buf;
+  try{buf=await decodeAB(ac,ab)}finally{try{ac.close()}catch(e){}}
+  const d=buf.getChannelData(0),sr=buf.sampleRate;let pk=0;
+  for(let i=0;i<d.length;i++){const v=Math.abs(d[i]);if(v>pk)pk=v}
+  if(pk<0.01)throw new Error('silent');
+  const th=Math.max(0.015,pk*0.07);let a=0,b=d.length-1;
+  while(a<d.length&&Math.abs(d[a])<th)a++;while(b>a&&Math.abs(d[b])<th)b--;
+  const pad=Math.round(sr*0.06);a=Math.max(0,a-pad);b=Math.min(d.length-1,b+pad*2);
+  const len=b-a+1;if(len<sr*0.12)throw new Error('short');
+  const OUT=16000,n=Math.max(1,Math.floor(len*OUT/sr)),gain=Math.min(8,0.9/pk),pcm=new Int16Array(n);
+  for(let i=0;i<n;i++){const x=a+i*sr/OUT,i0=Math.floor(x),f=x-i0,v=d[i0]*(1-f)+d[Math.min(i0+1,d.length-1)]*f;pcm[i]=Math.max(-1,Math.min(1,v*gain))*32767}
+  const hd=new ArrayBuffer(44),dv=new DataView(hd),w=(o,s)=>{for(let i=0;i<s.length;i++)dv.setUint8(o+i,s.charCodeAt(i))};
+  w(0,'RIFF');dv.setUint32(4,36+n*2,true);w(8,'WAVEfmt ');dv.setUint32(16,16,true);dv.setUint16(20,1,true);dv.setUint16(22,1,true);dv.setUint32(24,OUT,true);dv.setUint32(28,OUT*2,true);dv.setUint16(32,2,true);dv.setUint16(34,16,true);w(36,'data');dv.setUint32(40,n*2,true);
+  const bytes=new Uint8Array(44+n*2);bytes.set(new Uint8Array(hd),0);bytes.set(new Uint8Array(pcm.buffer),44);
+  let bin='';for(let i=0;i<bytes.length;i+=8192)bin+=String.fromCharCode.apply(null,bytes.subarray(i,i+8192));
+  return 'data:audio/wav;base64,'+btoa(bin);
+}
+function playClip(k,key){const u=(VL[k]||{})[key];if(!u){toast('রেকর্ড নেই');return}stopSay();try{const a=new Audio(u);a.volume=CFG.vol;CUR=a;a.play()}catch(e){}}
+function delClip(k,key){delete VL[k][key];saveV();render()}
+function recName(i){const nm=(G.setup.names[i]||'').trim();if(!nm){toast('আগে নামটা লিখুন');return}recPop('n',nm,nm)}
+function recNewName(){const v=($('#newvn').value||'').trim();if(!v){toast('নাম লিখুন');return}recPop('n',v,v)}
+function exportVoice(){const b=new Blob([JSON.stringify(VL)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='teen-patti-voice.json';document.body.appendChild(a);a.click();a.remove()}
+function importVoice(){const i=document.createElement('input');i.type='file';i.accept='.json,application/json';i.onchange=async()=>{try{const j=JSON.parse(await i.files[0].text());if(!j.p||!j.n)throw 0;VL=j;if(saveV()){toast('ভয়েস লোড হয়েছে');render()}}catch(e){toast('ফাইলটি ঠিক নয়')}};i.click()}
+function clearVoice(){ask('সব রেকর্ডিং মুছে ফেলবেন?',()=>{VL={p:{},n:{}};saveV();render()})}
+
+/* ---------- সেটআপ ---------- */
+function setN(v){G.setup.n=+v;render()}
+function fillSetup(){const s=G.setup;for(let k=0;k<s.n;k++){s.names[k]=s.names[k]||'';s.amts[k]=(s.amts[k]!=null&&s.amts[k]!=='')?s.amts[k]:s.allAmt;s.avs[k]=s.avs[k]!=null?s.avs[k]:k%AVS.length}}
+function swapSetup(i,d){const s=G.setup,j=i+d;if(j<0||j>=s.n)return;fillSetup();['names','amts','avs'].forEach(k=>{const t=s[k][i];s[k][i]=s[k][j];s[k][j]=t});render()}
+function startGame(){
+  const s=G.setup,boot=+s.boot;
+  if(!(boot>0)){toast('বুটের পরিমাণ লিখুন');return}
+  const amts=[];
+  for(let i=0;i<s.n;i++){const a=+(s.amts[i]!=null&&s.amts[i]!==''?s.amts[i]:s.allAmt);if(!(a>=boot)){toast('জমা অন্তত বুটের সমান হতে হবে (খেলোয়াড় '+bn(i+1)+')');return}amts.push(a)}
+  G=Object.assign(fresh(),{phase:'setup',setup:s});HIST=[];
+  for(let i=0;i<s.n;i++)G.players.push({id:'p'+(i+1),name:((s.names[i]||'').trim())||('খেলোয়াড় '+(i+1)),bal:amts[i],dep:amts[i],in:true,av:s.avs[i]!=null?s.avs[i]:i%AVS.length});
+  G.nextId=s.n+1;G.boot=boot;G.startedAt=Date.now();startRound(true);
+}
+/* ---------- অবতার বাছাই ---------- */
+function avPick(kind,key){
+  let h='<b>একটি ছবি বেছে নিন</b><div class="avg">';
+  for(let i=0;i<AVS.length;i++)h+=`<button onclick="setAv('${kind}','${key}',${i})">${avH(i,64)}</button>`;
+  h+='</div><div class="btn-row"><button class="ghost full" onclick="closePop()">বন্ধ করুন</button></div>';
+  popup(h);
+}
+function setAv(kind,key,i){
+  if(kind==='s'){fillSetup();G.setup.avs[+key]=i}else{snap();pl(key).av=i;save()}
+  closePop();render();
+}
+/* ---------- রাউন্ড ---------- */
+function nextIn(id){const P=G.players;let i=P.findIndex(p=>p.id===id);for(let k=0;k<P.length;k++){i=(i+1)%P.length;if(P[i].in)return P[i].id}return id}
+function nextAfter(id,dir){dir=dir||1;const P=G.players,r=G.r;let i=P.findIndex(p=>p.id===id);for(let k=0;k<P.length;k++){i=(i+dir+P.length)%P.length;const s=r.st[P[i].id];if(s&&!s.folded)return P[i].id}return null}
+function activeIds(){return Object.keys(G.r.st).filter(k=>!G.r.st[k].folded)}
+function setT(id){G.r.turn=id;ACK=null}
+function startRound(first){
+  const act=G.players.filter(p=>p.in);
+  if(act.length<2){toast('কমপক্ষে ২ জন খেলোয়াড় লাগবে');return}
+  if(!(G.boot>0)){toast('বুটের পরিমাণ লিখুন');return}
+  const sh=act.find(p=>p.bal+1e-9<G.boot);if(sh){toast(sh.name+'-এর ব্যালেন্স বুটের চেয়ে কম — জমা দিন বা বাদ দিন');return}
+  if(!first)snap();
+  if(first||!G.dealer||!pl(G.dealer)){G.dealer=G.players[G.players.length-1].id;if(!first)G.keepDealer=false}
+  if(!first&&!G.keepDealer)G.dealer=nextIn(G.dealer);
+  G.keepDealer=false;
+  const r={n:++G.roundNo,pot:0,S:G.boot,st:{},log:[],pend:null,over:false,winner:null,turn:null,dealer:G.dealer};
+  act.forEach(p=>{r.st[p.id]={paid:G.boot,seen:false,folded:false};r.pot+=G.boot;p.bal=rnd(p.bal-G.boot)});
+  G.r=r;r.turn=nextAfter(G.dealer);
+  if(G.nextFirst&&r.st[G.nextFirst]){r.turn=G.nextFirst;r.dealer=nextAfter(G.nextFirst,-1);G.dealer=r.dealer}
+  G.nextFirst=null;ACK=null;
+  r.log.push('বুট: প্রত্যেকে '+fmt(G.boot)+' — পট '+fmt(r.pot));
+  G.phase='play';save();render();
+  playQ([...(first?[P_('start')]:[]),P_('ebar'),N_(r.turn),P_('pala')]);
+}
+function pay(id,a){const s=G.r.st[id];s.paid=rnd(s.paid+a);G.r.pot=rnd(G.r.pot+a);pl(id).bal=rnd(pl(id).bal-a)}
+function lg(t){G.r.log.push(t)}
+function foldAsk(){const r=G.r;ask(pl(r.turn).name+' ফোল্ড (প্যাক) করবেন?',()=>A('fold'))}
+function A(type){
+  const r=G.r;if(!r||r.over||r.pend)return;snap();
+  const id=r.turn,s=r.st[id],n=pl(id).name,S=r.S,pt=r.turn;
+  const cost={chaal:s.seen?S:S/2,raise:s.seen?S*2:S,side:S,show:s.seen?S:S/2}[type];
+  if(cost!=null&&!can(id,cost)){HIST.pop();toast('ব্যালেন্স যথেষ্ট নয় — টাকা জমা দিন');return}
+  let msg='',q=[];
+  if(type==='see'){s.seen=true;lg(n+' তাস দেখলেন');msg=n+' তাস দেখলেন';q=[N_(id),P_('see')]}
+  else if(type==='chaal'){const x=s.seen?S:S/2;pay(id,x);lg(n+(s.seen?' চাল ':' অন্ধ চাল ')+fmt(x));r.S=s.seen?x:x*2;msg=n+(s.seen?' চাল দিলেন':' অন্ধ চাল দিলেন');q=[N_(id),P_(s.seen?'chaal':'blindchaal')];setT(nextAfter(id))}
+  else if(type==='raise'){const x=s.seen?S*2:S;pay(id,x);lg(n+(s.seen?' রেইজ ':' অন্ধ রেইজ ')+fmt(x));r.S=s.seen?x:x*2;msg=n+(s.seen?' রেইজ করলেন':' অন্ধ রেইজ করলেন');q=[N_(id),P_(s.seen?'raise':'blindraise')];setT(nextAfter(id))}
+  else if(type==='fold'){s.folded=true;lg(n+' ফোল্ড (প্যাক)');msg=n+' ফোল্ড করলেন';q=[N_(id),P_('fold')];const a=activeIds();if(a.length===1){endRound(a[0]);save();render();announce(q,pt);ub(msg);return}setT(nextAfter(id))}
+  else if(type==='side'){const prev=nextAfter(id,-1);pay(id,S);lg(n+' → '+pl(prev).name+'-এর কাছে সাইড শো চাইলেন, চাল '+fmt(S));msg=n+', '+pl(prev).name+'-এর কাছে সাইড শো চাইলেন';q=[N_(id),P_('side')];r.pend={t:'side',a:id,b:prev}}
+  else if(type==='show'){const x=s.seen?S:S/2;const other=activeIds().find(k=>k!==id);pay(id,x);lg(n+' শো চাইলেন, '+fmt(x)+' দিলেন');msg=n+' শো চাইলেন';q=[N_(id),P_('show')];r.pend={t:'show',a:id,b:other}}
+  save();render();announce(q,pt);ub(msg);
+}
+function R(w){
+  const r=G.r,p=r.pend;if(!p)return;snap();const pt=r.turn;let msg='',q=[];
+  if(p.t==='side'){
+    if(w==='none'){lg('সাইড শো প্রত্যাখ্যাত');msg='সাইড শো প্রত্যাখ্যাত হলো';q=[P_('declined')];r.pend=null;setT(nextAfter(p.a))}
+    else{const lo=w===p.a?p.b:p.a;r.st[lo].folded=true;lg('সাইড শো: '+pl(w).name+' জিতলেন, '+pl(lo).name+' ফোল্ড');msg='সাইড শো: '+pl(w).name+' জিতলেন, '+pl(lo).name+' ফোল্ড';q=[N_(w),P_('won'),N_(lo),P_('fold')];r.pend=null;setT(nextAfter(p.a))}
+  }else{lg('শো: '+pl(w).name+' জিতলেন');msg='শো: '+pl(w).name+' জিতলেন';r.pend=null;endRound(w)}
+  save();render();announce(q,pt);ub(msg);
+}
+function endRound(w){
+  const r=G.r;r.over=true;r.winner=w;const paid={};
+  Object.keys(r.st).forEach(k=>{paid[k]=r.st[k].paid});
+  pl(w).bal=rnd(pl(w).bal+r.pot);
+  G.players.forEach(p=>{if(p.in&&p.bal+1e-9<G.boot)p.in=false});
+  G.rounds.push({n:r.n,winner:w,wn:pl(w).name,pot:r.pot,paid});G.phase='between';
+}
+function voidRound(){
+  ask('এই রাউন্ড বাতিল করবেন? এই রাউন্ডে সবার দেওয়া টাকা ফেরত যাবে এবং কোনো ফলাফল ধরা হবে না।',()=>{
+    const r=G.r;if(!r||r.over)return;snap();
+    Object.keys(r.st).forEach(k=>{pl(k).bal=rnd(pl(k).bal+r.st[k].paid)});
+    r.over=true;r.voided=true;r.pend=null;
+    G.roundNo=r.n-1;G.voids=(G.voids||0)+1;G.keepDealer=true;G.dealer=r.dealer;
+    G.phase='between';save();render();playQ([P_('void')]);
+  });
+}
+/* পালা বদল / টাকা জমা (খেলার মাঝে) */
+function turnPop(){
+  const r=G.r;let h='<b>পরের পালা কার?</b><div class="btn-row">';
+  activeIds().forEach(k=>{h+=`<button class="${k===r.turn?'gold':''} full" onclick="setTurn('${k}')">${esc(pl(k).name)}${k===r.turn?' (এখন)':''}</button>`});
+  h+='<button class="ghost full" onclick="closePop()">বন্ধ করুন</button></div>';popup(h);
+}
+function setTurn(id){const r=G.r;snap();setT(id);lg('পালা বদল: এখন '+pl(id).name);closePop();save();render();playQ([P_('ebar'),N_(id),P_('pala')])}
+function topPop(def){
+  let h='<b>টাকা জমা দিন</b><label>কে জমা দিচ্ছেন?</label><select id="tps">';
+  G.players.forEach(p=>{h+=`<option value="${p.id}" ${p.id===def?'selected':''}>${esc(p.name)} (ব্যালেন্স ${fmt(p.bal)})</option>`});
+  h+='</select><label>কত টাকা?</label><input type="number" inputmode="decimal" step="any" id="tpa" placeholder="৳" style="font-size:22px;padding:14px">';
+  h+='<div class="btn-row"><button class="ghost" onclick="closePop()">বাতিল</button><button class="gold" onclick="topPopOk()">জমা নিন</button></div>';popup(h);
+  setTimeout(()=>{const e=$('#tpa');if(e)e.focus()},50);
+}
+function topPopOk(){const id=$('#tps').value,a=+$('#tpa').value;if(!(a>0)){toast('টাকার পরিমাণ লিখুন');return}closePop();doTop(id,a)}
+function doTop(id,a){
+  snap();const p=pl(id);p.bal=rnd(p.bal+a);p.dep=rnd(p.dep+a);
+  if(G.phase==='between'&&p.bal>=G.boot)p.in=true;
+  if(G.phase==='play'&&G.r)lg(p.name+' আরও '+fmt(a)+' জমা দিলেন');
+  toast(p.name+' আরও '+fmt(a)+' জমা দিলেন');save();render();playQ([N_(id),P_('topup')]);
+}
+function topUp(id){const a=+$('#tu_'+id).value;if(!(a>0)){toast('জমার পরিমাণ লিখুন');return}doTop(id,a)}
+/* ---------- রাউন্ডের মাঝে ---------- */
+function movePlayer(id,d){const P=G.players,i=P.findIndex(p=>p.id===id),j=i+d;if(j<0||j>=P.length)return;snap();[P[i],P[j]]=[P[j],P[i]];save();render()}
+function setFirst(v){G.nextFirst=v||null;save()}
+function addPlayer(){
+  const v=($('#newp').value||'').trim();const a=+$('#newamt').value;
+  if(!v){toast('নাম লিখুন');return}
+  if(!(a>=G.boot)){toast('জমা অন্তত বুটের সমান হতে হবে');return}
+  snap();G.players.push({id:'p'+(G.nextId++),name:v,bal:a,dep:a,in:true,av:G.players.length%AVS.length});save();render();
+}
+function settleOf(list){
+  const c=list.map(p=>({n:p.name,v:rnd(p.net)})).filter(x=>x.v!==0);
+  const cr=c.filter(x=>x.v>0).map(x=>({...x})).sort((a,b)=>b.v-a.v);
+  const db=c.filter(x=>x.v<0).map(x=>({n:x.n,v:-x.v})).sort((a,b)=>b.v-a.v);
+  const out=[];let i=0,j=0;
+  while(i<db.length&&j<cr.length){const m=Math.min(db[i].v,cr[j].v);out.push({from:db[i].n,to:cr[j].n,amt:rnd(m)});db[i].v=rnd(db[i].v-m);cr[j].v=rnd(cr[j].v-m);if(db[i].v===0)i++;if(cr[j].v===0)j++}
+  return out;
+}
+const settle=()=>settleOf(G.players.map(p=>({name:p.name,net:net(p)})));
+function summaryText(src){
+  const P=src?src.players:G.players.map(p=>({name:p.name,dep:p.dep,bal:p.bal,net:net(p)}));
+  const S=src?src.settle:settle();
+  let t='তিন তাস — হিসাব'+(src?'':' (রাউন্ড '+G.roundNo+')')+'\n';
+  P.forEach(p=>{t+=p.name+': ব্যালেন্স '+fmt(p.bal)+' (জমা '+fmt(p.dep)+', '+(p.net>0?'+':'')+fmt(p.net)+')\n'});
+  t+='\nমিটমাট:\n';if(!S.length)t+='কারও কিছু দেওয়ার নেই\n';
+  S.forEach(x=>{t+=x.from+' → '+x.to+': '+fmt(x.amt)+'\n'});return t;
+}
+function copyText(t){try{navigator.clipboard.writeText(t).then(()=>toast('কপি হয়েছে'),()=>fb(t))}catch(e){fb(t)}}
+function fb(t){const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy');toast('কপি হয়েছে')}catch(e){toast('কপি করা গেল না')}a.remove()}
+const copySummary=()=>copyText(summaryText());
+/* ---------- ইতিহাস ---------- */
+function archive(){
+  if(!G.players.length||!G.rounds.length)return false;
+  const h=loadH();
+  h.unshift({id:Date.now(),start:G.startedAt,end:Date.now(),boot:G.boot,voids:G.voids||0,
+    players:G.players.map(p=>({name:p.name,dep:p.dep,bal:p.bal,net:net(p),av:pav(p)})),
+    rounds:G.rounds.map(x=>({n:x.n,w:x.wn,pot:x.pot})),settle:settle()});
+  saveH(h);return true;
+}
+function finishGame(){
+  ask(G.rounds.length?'খেলা শেষ করে ইতিহাসে সংরক্ষণ করবেন? এরপর নতুন খেলা শুরু করতে হবে।':'কোনো রাউন্ড শেষ হয়নি, তাই ইতিহাসে সংরক্ষণ হবে না। নতুন খেলা শুরু করবেন?',()=>{
+    const ok=archive();const keep=G.setup;G=fresh();G.setup.avs=[];HIST=[];VIEW='';ACK=null;save();render();if(ok)toast('খেলা ইতিহাসে সংরক্ষিত হয়েছে');
+  });
+}
+function delHist(id){ask('এই খেলার ইতিহাস মুছে ফেলবেন?',()=>{saveH(loadH().filter(x=>x.id!==id));render()})}
+function copyHist(id){const x=loadH().find(h=>h.id===id);if(x)copyText(summaryText(x))}
+function go(v){VIEW=v;render();window.scrollTo(0,0)}
+
+/* ---------- ভিউ ---------- */
+function hdr(){
+  const b=VIEW?'<button class="sm" onclick="go(\'\')">← ফিরে যান</button>':'<div style="display:flex;gap:6px"><button class="sm" onclick="go(\'set\')">সেটিংস</button><button class="sm" onclick="go(\'hist\')">ইতিহাস</button></div>';
+  return `<div class="hdr"><div class="logo"><span>♠<i class="r">♥</i>♦♣</span>তিন তাস</div>${b}</div>`;
+}
+function dev(){return `<div class="dev">ডেভেলপার: <b>মো. রুকনুজ্জামান</b><br><a href="mailto:mrzaman22@gmail.com">mrzaman22@gmail.com</a></div>`}
+function vSetup(){
+  const s=G.setup;fillSetup();let h='<small>আসল তাস হাতে, হিসাব এখানে। শেষে কে কাকে কত দেবে তা বলে দেবে।</small>';
+  h+='<div class="box"><label>কয়জন খেলোয়াড়?</label><select onchange="setN(this.value)">';
+  for(let i=2;i<=10;i++)h+=`<option value="${i}" ${i==s.n?'selected':''}>${bn(i)} জন</option>`;
+  h+='</select>';
+  h+=`<label>বুট (প্রতি রাউন্ডের শুরুতে প্রত্যেকের জমা)</label><input type="number" inputmode="decimal" step="any" min="0" value="${esc(s.boot)}" oninput="G.setup.boot=this.value">`;
+  h+=`<label>সবার প্রারম্ভিক জমা (শুরুতে প্রত্যেকে কত টাকা দেবে)</label><input type="number" inputmode="decimal" step="any" min="0" value="${esc(s.allAmt)}" onchange="G.setup.allAmt=this.value;G.setup.amts=[];render()">`;
+  h+='<label>খেলোয়াড় — ছবিতে চাপুন ছবি বদলাতে, ↑↓ দিয়ে পালার ক্রম ঠিক করুন (১ নম্বর আগে খেলবেন। মাইক চেপে নিজের গলায় নামটা রেকর্ড করুন)</label>';
+  for(let i=0;i<s.n;i++)h+=`<div class="pr"><button class="avb" onclick="avPick('s','${i}')">${avH(s.avs[i],46)}</button><input class="nm" type="text" placeholder="খেলোয়াড় ${bn(i+1)}" value="${esc(s.names[i])}" oninput="G.setup.names[${i}]=this.value"><button class="avb" style="color:var(--gold2)" onclick="recName(${i})" title="নামের উচ্চারণ রেকর্ড">${MIC}</button><input class="am" type="number" inputmode="decimal" step="any" value="${esc(s.amts[i])}" oninput="G.setup.amts[${i}]=this.value"><div class="arr"><button onclick="swapSetup(${i},-1)">▲</button><button onclick="swapSetup(${i},1)">▼</button></div></div>`;
+  h+='<div class="btn-row"><button class="gold full" onclick="startGame()">খেলা শুরু করুন</button></div></div>';
+  return h;
+}
+function stBadges(s){return s.folded?'<span class="chip c-fold">ফোল্ড</span>':s.seen?'<span class="chip c-seen">দেখেছে</span>':'<span class="chip c-blind">অন্ধ</span>'}
+function actBtns(id){
+  const r=G.r,s=r.st[id],S=r.S,n=activeIds().length,cc=s.seen?S:S/2,rc=s.seen?S*2:S;
+  let h='<div class="btn-row">';
+  if(!s.seen)h+='<button class="blue full" onclick="A(\'see\')">তাস দেখলাম</button>';
+  h+=`<button class="gold" ${can(id,cc)?'':'disabled'} onclick="A('chaal')">${s.seen?'চাল':'অন্ধ চাল'} ${fmt(cc)}</button>`;
+  h+=`<button class="gold" ${can(id,rc)?'':'disabled'} onclick="A('raise')">${s.seen?'রেইজ':'অন্ধ রেইজ'} ${fmt(rc)}</button>`;
+  h+='<button class="red" onclick="foldAsk()">ফোল্ড (প্যাক)</button>';
+  if(n>=3&&s.seen){const pv=nextAfter(id,-1);if(r.st[pv].seen)h+=`<button class="blue" ${can(id,S)?'':'disabled'} onclick="A('side')">সাইড শো (${esc(pl(pv).name)}) ${fmt(S)}</button>`}
+  if(n===2)h+=`<button class="blue" ${can(id,cc)?'':'disabled'} onclick="A('show')">শো ${fmt(cc)}</button>`;
+  if(!can(id,cc))h+=`<button class="gold full" onclick="topPop('${id}')">টাকা শেষ — জমা দিন</button>`;
+  return h+'</div>';
+}
+function pendPanel(){
+  const r=G.r,p=r.pend,a=pl(p.a).name,b=pl(p.b).name;
+  return `<div class="box"><div style="display:flex;align-items:center;justify-content:center;gap:14px">${avH(pav(pl(p.a)),56)}<b>${p.t==='side'?'সাইড শো':'শো'}</b>${avH(pav(pl(p.b)),56)}</div><div style="text-align:center"><b>${esc(a)} বনাম ${esc(b)}</b></div><div class="mut" style="font-size:14px;text-align:center">তাস মিলিয়ে কার হাত বড়? ${p.t==='show'?'(সমান হলে যিনি শো চেয়েছেন তিনি হারেন)':'(সমান হলে প্রশ্নকারী হারেন; প্রতিপক্ষ রাজি না হলে "প্রত্যাখ্যান")'}</div><div class="btn-row"><button class="gold" onclick="R('${p.a}')">${esc(a)} জিতেছে</button><button class="gold" onclick="R('${p.b}')">${esc(b)} জিতেছে</button>${p.t==='side'?'<button class="ghost full" onclick="R(\'none\')">প্রত্যাখ্যান</button>':''}</div></div>`;
+}
+function vTable(){
+  const r=G.r;let h='';
+  G.players.forEach(p=>{
+    const s=r.st[p.id];if(!s)return;
+    const cur=!r.pend&&r.turn===p.id;
+    h+=`<div class="pl ${cur?'cur':''} ${s.folded?'fold':''}"><div class="plrow">${avH(pav(p),46)}<div class="pn"><b>${esc(p.name)}</b>${stBadges(s)}${p.id===r.dealer?'<span class="chip c-dlr">ডিলার</span>':''}</div><div><div class="amt">${fmt(s.paid)}</div><div class="bal">ব্যালেন্স ${fmt(p.bal)}</div></div></div>${cur?actBtns(p.id):''}</div>`;
+  });
+  if(r.pend)h+=pendPanel();
+  return h;
+}
+function vSolo(){
+  const r=G.r;let h='<div class="strip">';
+  G.players.forEach(p=>{const s=r.st[p.id];if(!s)return;h+=`<div class="it ${!r.pend&&r.turn===p.id?'cur':''} ${s.folded?'fold':''}">${avH(pav(p),38)}<span class="t">${esc(p.name)}</span></div>`});
+  h+='</div>';
+  if(r.pend)return h+pendPanel();
+  const id=r.turn,p=pl(id),s=r.st[id];
+  if(ACK!==id){
+    return h+`<div class="box splash"><div class="mut">এবার</div>${avH(pav(p),150)}<div class="nm">${esc(p.name)}</div><div class="mut">-এর পালা</div><div class="btn-row"><button class="gold full" style="min-height:58px;font-size:19px" onclick="ACK='${id}';render()">আমি প্রস্তুত</button></div></div>`;
+  }
+  return h+`<div class="box solo">${avH(pav(p),110)}<div class="nm">${esc(p.name)}</div><div>${stBadges(s)}${id===r.dealer?'<span class="chip c-dlr">ডিলার</span>':''}</div><div class="kv"><div><small>এই রাউন্ডে দিয়েছেন</small><b>${fmt(s.paid)}</b></div><div><small>ব্যালেন্স</small><b>${fmt(p.bal)}</b></div></div>${actBtns(id)}</div>`;
+}
+function vPlay(){
+  const r=G.r,S=r.S;let h='';
+  h+=`<div class="top"><div class="stat"><small>রাউন্ড</small><b>${bn(r.n)}</b></div><div class="pot"><small>পট</small><b>${fmt(r.pot)}</b></div><div class="stat"><small>চাল / অন্ধ</small><b>${fmt(S)} / ${fmt(S/2)}</b></div></div>`;
+  h+=`<div class="btn-row" style="margin-top:8px"><button class="ghost sm full" onclick="setCfg('mode','${CFG.mode==='solo'?'table':'solo'}')">${CFG.mode==='solo'?'টেবিল মোডে যান (সবার নাম একসাথে)':'একক পর্দা মোডে যান (একজন একজন করে)'}</button></div>`;
+  h+=CFG.mode==='solo'?vSolo():vTable();
+  h+='<div class="util"><button class="ghost" onclick="undo()">↶ শেষ কাজ বাতিল</button><button class="ghost" onclick="turnPop()">পালা বদল</button><button class="ghost" onclick="topPop(\''+r.turn+'\')">+ টাকা জমা</button><button class="ghost" style="color:#ff9ea1" onclick="voidRound()">এই রাউন্ড বাতিল</button></div>';
+  h+='<details><summary>খেলার লগ</summary><div class="log">'+r.log.slice().reverse().map(x=>'<div>'+esc(x)+'</div>').join('')+'</div></details>';
+  return h;
+}
+function vBetween(){
+  const r=G.r;let h='';
+  if(r.voided){
+    h+=`<div class="box"><b>রাউন্ড বাতিল করা হয়েছে</b><div class="mut">সবার দেওয়া টাকা ফেরত গেছে। পরের রাউন্ড আবার একই নম্বর ও একই ডিলার দিয়ে শুরু হবে।</div></div>`;
+  }else{
+    const w=pl(r.winner);
+    h+=`<h1>রাউন্ড ${bn(r.n)} শেষ</h1>`;
+    h+=`<div class="box"><div style="text-align:center">${avH(pav(w),90)}<div style="font-size:20px"><b>বিজয়ী: ${esc(w.name)}</b></div><div class="mut">পট ${fmt(r.pot)}</div></div><div style="margin-top:8px">`;
+    Object.keys(r.st).filter(k=>k!==r.winner).forEach(k=>{h+=`<div class="tx">${esc(pl(k).name)} → ${esc(w.name)}: <b>${fmt(r.st[k].paid)}</b></div>`});
+    h+='</div></div>';
+  }
+  h+='<h2>সর্বমোট অবস্থা</h2><div class="box">';
+  G.players.forEach(p=>{const n=net(p);h+=`<div class="row"><span style="display:flex;align-items:center;gap:10px">${avH(pav(p),36)}<span>${esc(p.name)}<br><small>জমা ${fmt(p.dep)} · ব্যালেন্স ${fmt(p.bal)}</small></span></span><b class="${n>0?'pos':n<0?'neg':''}">${n>0?'+':''}${fmt(n)}</b></div>`});
+  h+='</div>';
+  const s=settle();
+  h+='<h2>মিটমাট (কম লেনদেনে)</h2><div class="box">';
+  if(!s.length)h+='<div class="mut">কারও কিছু দেওয়ার নেই।</div>';
+  s.forEach(x=>{h+=`<div class="tx">${esc(x.from)} → ${esc(x.to)}: <b>${fmt(x.amt)}</b></div>`});
+  h+='<div class="btn-row"><button class="ghost full" onclick="copySummary()">হিসাব কপি করুন</button></div></div>';
+  h+='<h2>পরের রাউন্ড</h2><div class="box"><label style="margin-top:0">কারা খেলবে? (ছবিতে চাপুন ছবি বদলাতে, ↑↓ দিয়ে ক্রম বদলান)</label>';
+  G.players.forEach((p,i)=>{
+    const low=p.bal+1e-9<G.boot;
+    h+=`<div class="pk"><div class="l1"><input type="checkbox" ${p.in?'checked':''} onchange="pl('${p.id}').in=this.checked;save()"><button class="avb" onclick="avPick('p','${p.id}')">${avH(pav(p),38)}</button><span style="flex:1;min-width:0">${esc(p.name)}<br><small>ব্যালেন্স ${fmt(p.bal)}</small>${low?' <small class="neg">কম</small>':''}</span><div class="arr"><button onclick="movePlayer('${p.id}',-1)">▲</button><button onclick="movePlayer('${p.id}',1)">▼</button></div></div><div class="l2"><input type="number" inputmode="decimal" step="any" id="tu_${p.id}" placeholder="আরও জমা (৳)"><button class="gold" onclick="topUp('${p.id}')">জমা দিন</button></div></div>`;
+  });
+  h+=`<label>পরের রাউন্ডে প্রথম পালা কার?</label><select onchange="setFirst(this.value)"><option value="">স্বয়ংক্রিয় (ঘুরে ঘুরে)</option>`+G.players.filter(p=>p.in).map(p=>`<option value="${p.id}" ${G.nextFirst===p.id?'selected':''}>${esc(p.name)}</option>`).join('')+'</select>';
+  h+=`<label>বুট</label><input type="number" inputmode="decimal" step="any" min="0" value="${esc(G.boot)}" onchange="G.boot=+this.value;save()">`;
+  h+='<label>নতুন খেলোয়াড় যোগ (নাম ও জমা)</label><div class="pr"><input class="nm" type="text" id="newp" placeholder="নাম"><input class="am" type="number" inputmode="decimal" step="any" id="newamt" placeholder="জমা"></div><button class="sm" style="width:100%" onclick="addPlayer()">খেলোয়াড় যোগ করুন</button>';
+  h+='<div class="btn-row"><button class="gold full" onclick="startRound()">পরের রাউন্ড শুরু</button><button class="ghost" onclick="undo()">↶ বাতিল</button><button class="red" onclick="finishGame()">খেলা শেষ</button></div></div>';
+  return h;
+}
+function vHist(){
+  const H=loadH();let h='<h1>পুরনো খেলার ইতিহাস</h1>';
+  if(!H.length)return h+'<div class="empty">এখনও কোনো খেলা সংরক্ষিত নেই।<br>"খেলা শেষ" চাপলে খেলাটি এখানে জমা হবে।</div>';
+  H.forEach(x=>{
+    h+=`<details class="box hi"><summary><span><b>${fdt(x.end)}</b><br><small>${bn(x.players.length)} জন · ${bn(x.rounds.length)} রাউন্ড · বুট ${fmt(x.boot)}</small></span><span class="mut">খুলুন ▾</span></summary>`;
+    h+='<h2>খেলোয়াড়</h2>';
+    x.players.forEach(p=>{h+=`<div class="row"><span style="display:flex;align-items:center;gap:10px">${avH(p.av||0,34)}<span>${esc(p.name)}<br><small>জমা ${fmt(p.dep)} · শেষ ব্যালেন্স ${fmt(p.bal)}</small></span></span><b class="${p.net>0?'pos':p.net<0?'neg':''}">${p.net>0?'+':''}${fmt(p.net)}</b></div>`});
+    h+='<h2>মিটমাট</h2>';
+    if(!x.settle.length)h+='<div class="mut">কারও কিছু দেওয়ার ছিল না।</div>';
+    x.settle.forEach(s=>{h+=`<div class="tx">${esc(s.from)} → ${esc(s.to)}: <b>${fmt(s.amt)}</b></div>`});
+    h+='<h2>রাউন্ডভিত্তিক ফলাফল</h2>';
+    x.rounds.forEach(q=>{h+=`<div class="row"><span>রাউন্ড ${bn(q.n)}: ${esc(q.w)}</span><b>${fmt(q.pot)}</b></div>`});
+    if(x.voids)h+=`<div class="mut" style="margin-top:6px">বাতিল রাউন্ড: ${bn(x.voids)}টি</div>`;
+    h+=`<div class="btn-row"><button class="ghost" onclick="copyHist(${x.id})">কপি</button><button class="red" onclick="delHist(${x.id})">মুছুন</button></div></details>`;
+  });
+  return h;
+}
+function vSet(){
+  pickVoice();const cnt=PH.filter(x=>VL.p[x[0]]).length;
+  let h='<h1>সেটিংস</h1><div class="box">';
+  h+=`<div class="sw"><span>ভয়েস ঘোষণা চালু<br><small>(পটের টাকা কখনো বলবে না)</small></span><input type="checkbox" ${CFG.voice?'checked':''} onchange="setCfg('voice',this.checked)"></div>`;
+  h+=`<div class="btn-row"><button class="gold full" onclick="go('voice')">নিজের গলায় ভয়েস রেকর্ড করুন<br><small style="color:#5a4300">${bn(cnt)}/${bn(PH.length)}টি বাক্য রেকর্ড আছে</small></button></div>`;
+  h+=`<div class="sw"><span>রেকর্ড না থাকলে ফোনের ভয়েস ব্যবহার করবে<br><small>(উচ্চারণ ভালো নাও হতে পারে)</small></span><input type="checkbox" ${CFG.tts?'checked':''} onchange="setCfg('tts',this.checked)"></div>`;
+  h+=`<label>কথার গতি</label><input type="range" min="0.8" max="1.3" step="0.1" value="${CFG.rate}" onchange="setCfg('rate',+this.value)">`;
+  h+=`<label>আওয়াজ</label><input type="range" min="0.2" max="1" step="0.1" value="${CFG.vol}" onchange="setCfg('vol',+this.value)">`;
+  h+='<div class="btn-row"><button class="ghost full" onclick="testVoice()">ভয়েস পরীক্ষা করুন</button></div></div>';
+  h+='<div class="box"><label style="margin-top:0">প্রদর্শন মোড</label><select onchange="setCfg(\'mode\',this.value)"><option value="table" '+(CFG.mode==='table'?'selected':'')+'>টেবিল মোড — সবার নাম একসাথে</option><option value="solo" '+(CFG.mode==='solo'?'selected':'')+'>একক পর্দা — একজন একজন করে</option></select></div>';
+  return h;
+}
+function voiceNames(){
+  const base=G.phase==='setup'?G.setup.names.slice(0,G.setup.n):G.players.map(p=>p.name);
+  return [...new Set([...base.map(x=>(x||'').trim()).filter(Boolean),...Object.keys(VL.n)])];
+}
+function vrow(label,has,play,rec,del){
+  return `<div class="row"><span>${esc(label)}<br><small>${has?'রেকর্ড আছে ✓':'রেকর্ড নেই'}</small></span><span style="display:flex;gap:6px"><button class="sm" ${has?'':'disabled'} onclick="${play}">▶</button><button class="sm red" onclick="${rec}">●</button><button class="sm ghost" ${has?'':'disabled'} onclick="${del}">✕</button></span></div>`;
+}
+function vVoice(){
+  VNAMES=voiceNames();const cnt=PH.filter(x=>VL.p[x[0]]).length;
+  let h='<h1>ভয়েস রেকর্ডিং</h1><small>নিজের গলায় বাক্যগুলো একবার রেকর্ড করুন। এরপর খেলার সময় সেই গলাতেই ঘোষণা হবে, উচ্চারণ একদম ঠিক থাকবে। রেকর্ডিং শুধু এই ফোনে সেভ থাকে।</small>';
+  h+='<div class="box"><b>ধাপ ১: খেলোয়াড়দের নাম</b><div class="mut" style="font-size:14px">প্রত্যেকের নাম একবার বলে রেকর্ড করুন (নিজে বা সেই বন্ধুই বলতে পারেন)।</div>';
+  if(!VNAMES.length)h+='<div class="mut" style="margin:10px 0">আগে খেলা শুরুর পাতায় নাম লিখুন, অথবা নিচে নতুন নাম যোগ করুন।</div>';
+  VNAMES.forEach((nm,i)=>{h+=vrow(nm,!!VL.n[nm],`playClip('n',VNAMES[${i}])`,`recPop('n',VNAMES[${i}],VNAMES[${i}])`,`delClip('n',VNAMES[${i}])`)});
+  h+='<div class="pr" style="margin-top:10px"><input class="nm" type="text" id="newvn" placeholder="নতুন নাম"><button class="sm" onclick="recNewName()">রেকর্ড</button></div></div>';
+  h+=`<div class="box"><b>ধাপ ২: বাক্য (${bn(cnt)}/${bn(PH.length)})</b><div class="mut" style="font-size:14px">যে কথা লেখা আছে ঠিক সেটাই বলুন। যেমন "-এর পালা" মানে "এর পালা"।</div>`;
+  PH.forEach(x=>{h+=vrow(x[1],!!VL.p[x[0]],`playClip('p','${x[0]}')`,`recPop('p','${x[0]}','${x[1]}')`,`delClip('p','${x[0]}')`)});
+  h+='</div><div class="box"><b>ব্যাকআপ</b><div class="mut" style="font-size:14px">ফাইলে সেভ করে রাখলে অন্য ফোনে বা ব্রাউজার ডেটা মুছলে আবার লোড করা যায়।</div><div class="btn-row"><button class="ghost" onclick="exportVoice()">ফাইলে সেভ</button><button class="ghost" onclick="importVoice()">ফাইল থেকে লোড</button><button class="red full" onclick="clearVoice()">সব রেকর্ডিং মুছুন</button></div></div>';
+  h+='<div class="btn-row"><button class="gold full" onclick="testVoice()">ভয়েস পরীক্ষা করুন</button><button class="ghost full" onclick="go(\'set\')">← সেটিংসে ফিরুন</button></div>';
+  return h;
+}
+function render(){
+  const body=VIEW==='hist'?vHist():VIEW==='set'?vSet():VIEW==='voice'?vVoice():G.phase==='setup'?vSetup():G.phase==='play'?vPlay():vBetween();
+  $('#app').innerHTML=hdr()+body+dev();
+}
+load();render();
+</script>
+</body>
+</html>
