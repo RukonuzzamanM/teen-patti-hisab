@@ -188,7 +188,7 @@ function load(){
   if(!G)G=fresh();if(!G.setup.avs)G.setup.avs=[];
   try{const c=JSON.parse(localStorage.getItem('tp_cfg'));if(c)CFG=Object.assign(CFG,c)}catch(e){}
   if(G.r)ACK=G.r.turn;
-  loadV();
+  loadV();fetchDV();
 }
 function save(){try{localStorage.setItem('tp_G',JSON.stringify(G));localStorage.setItem('tp_H',JSON.stringify(HIST))}catch(e){}}
 function saveCfg(){try{localStorage.setItem('tp_cfg',JSON.stringify(CFG))}catch(e){}}
@@ -212,9 +212,10 @@ const can=(id,x)=>pl(id).bal+1e-9>=x;
 // [কী, বাক্য]
 const PH=[['ebar','এবার'],['pala','-এর পালা'],['chaal','চাল দিলেন'],['blindchaal','অন্ধ চাল দিলেন'],['raise','রেইজ করলেন'],['blindraise','অন্ধ রেইজ করলেন'],['see','তাস দেখলেন'],['fold','ফোল্ড করলেন'],['side','সাইড শো চাইলেন'],['show','শো চাইলেন'],['declined','সাইড শো প্রত্যাখ্যাত হলো'],['won','জিতলেন'],['roundwon','রাউন্ড জিতলেন'],['topup','টাকা জমা দিলেন'],['void','রাউন্ড বাতিল হয়েছে'],['start','খেলা শুরু হলো']];
 const MIC='<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>';
-let VL={p:{},n:{}},VOICE=null,QTOK=0,CUR=null,RT=null,MR=null,RSTREAM=null,RTIMER=null,VNAMES=[];
+let VL={p:{},n:{}},DV={p:{},n:{}},VOICE=null,QTOK=0,CUR=null,RT=null,MR=null,RSTREAM=null,RTIMER=null,VNAMES=[];
 function loadV(){try{VL=JSON.parse(localStorage.getItem('tp_voice'))||{p:{},n:{}}}catch(e){VL={p:{},n:{}}}if(!VL.p)VL.p={};if(!VL.n)VL.n={}}
 function saveV(){try{localStorage.setItem('tp_voice',JSON.stringify(VL));return true}catch(e){toast('জায়গা শেষ — কিছু রেকর্ডিং মুছুন');return false}}
+function fetchDV(){try{fetch('voice.json').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.p&&j.n){DV=j;render()}}).catch(()=>{})}catch(e){}}
 function pickVoice(){try{VOICE=speechSynthesis.getVoices().find(v=>/^bn/i.test(v.lang))||null}catch(e){VOICE=null}}
 try{pickVoice();speechSynthesis.onvoiceschanged=pickVoice}catch(e){}
 function stopSay(){QTOK++;try{speechSynthesis.cancel()}catch(e){}if(CUR){try{CUR.pause()}catch(e){}CUR=null}}
@@ -224,7 +225,7 @@ function playQ(items){
   if(!CFG.voice)return;stopSay();const tok=QTOK;let i=0;
   const next=()=>{
     if(tok!==QTOK||i>=items.length)return;
-    const it=items[i++],clip=(VL[it.k]||{})[it.key];
+    const it=items[i++],clip=(VL[it.k]||{})[it.key]||(DV[it.k]||{})[it.key];
     if(clip){try{const a=new Audio(clip);CUR=a;a.volume=CFG.vol;a.playbackRate=CFG.rate;a.onended=next;a.onerror=next;const pr=a.play();if(pr&&pr.catch)pr.catch(next)}catch(e){next()}}
     else if(CFG.tts&&it.text){try{const u=new SpeechSynthesisUtterance(it.text);u.lang=VOICE?VOICE.lang:'bn-BD';if(VOICE)u.voice=VOICE;u.rate=CFG.rate;u.volume=CFG.vol;u.onend=next;u.onerror=next;speechSynthesis.speak(u)}catch(e){next()}}
     else next();
@@ -239,10 +240,10 @@ function announce(q,pt){
 }
 function setCfg(k,v){CFG[k]=v;saveCfg();if(k==='mode'||k==='voice'||k==='tts')render()}
 function testVoice(){
-  const any=PH.some(x=>VL.p[x[0]]);
+  const any=PH.some(x=>VL.p[x[0]]||DV.p[x[0]]);
   if(!any&&!CFG.tts){toast('আগে কিছু বাক্য রেকর্ড করুন');return}
   const keep=CFG.voice;CFG.voice=true;
-  const nm=Object.keys(VL.n)[0];
+  const nm=Object.keys(VL.n)[0]||Object.keys(DV.n)[0];
   playQ([P_('chaal'),P_('ebar'),...(nm?[{k:'n',key:nm,text:nm}]:[]),P_('pala')]);CFG.voice=keep;
 }
 /* রেকর্ডিং */
@@ -600,7 +601,7 @@ function vrow(label,has,play,rec,del){
 }
 function vVoice(){
   VNAMES=voiceNames();const cnt=PH.filter(x=>VL.p[x[0]]).length;
-  let h='<h1>ভয়েস রেকর্ডিং</h1><small>নিজের গলায় বাক্যগুলো একবার রেকর্ড করুন। এরপর খেলার সময় সেই গলাতেই ঘোষণা হবে, উচ্চারণ একদম ঠিক থাকবে। রেকর্ডিং শুধু এই ফোনে সেভ থাকে।</small>';
+  let h='<h1>ভয়েস রেকর্ডিং</h1><small>নিজের গলায় বাক্যগুলো একবার রেকর্ড করুন। এরপর খেলার সময় সেই গলাতেই ঘোষণা হবে, উচ্চারণ একদম ঠিক থাকবে। নিজের রেকর্ডিং এই ফোনে সেভ থাকে; ফোনে না থাকলে সাইটের ডিফল্ট ভয়েস (voice.json) বাজবে।</small>';
   h+='<div class="box"><b>ধাপ ১: খেলোয়াড়দের নাম</b><div class="mut" style="font-size:14px">প্রত্যেকের নাম একবার বলে রেকর্ড করুন (নিজে বা সেই বন্ধুই বলতে পারেন)।</div>';
   if(!VNAMES.length)h+='<div class="mut" style="margin:10px 0">আগে খেলা শুরুর পাতায় নাম লিখুন, অথবা নিচে নতুন নাম যোগ করুন।</div>';
   VNAMES.forEach((nm,i)=>{h+=vrow(nm,!!VL.n[nm],`playClip('n',VNAMES[${i}])`,`recPop('n',VNAMES[${i}],VNAMES[${i}])`,`delClip('n',VNAMES[${i}])`)});
